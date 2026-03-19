@@ -1,28 +1,3 @@
-def semi_major_axis_m(periapsis_m: float, apoapsis_m: float, equatorial_radius_of_body_m : float) -> float:
-    """
-    Given the periapis and apoapsis of and orbit (Pe and Ap respectively), and
-    the radius of the body around which that orbit exists (r), return the 
-    semi-major axis if that orbit. All values are in meters.
-    Note that the peripsis and apoapsis is as displayed in the game and is
-    the altitude above "sea level" (which is the same as the equitorial radius
-    of the body). That is what the radius is needed in this function.
-    """
-    return  (
-                (periapsis_m + equatorial_radius_of_body_m) +
-                (apoapsis_m + equatorial_radius_of_body_m)
-            ) / 2
-
-def sphere_of_influence_kg(semi_major_axis_of_orbit_m : float, mass_of_body_kg: float, mass_of_parent_body_kg: float) -> float:
-    """
-    The radius of the sphere around a given body where its gravitational
-    influence is more than that of the parent body. In KSP, only the
-    one extra body of the parent is considered.
-
-    Reference:
-        https://wiki.kerbalspaceprogram.com/wiki/Sphere_of_influence
-    """
-    return semi_major_axis_of_orbit_m * (mass_of_body_kg / mass_of_parent_body_kg)^2/5 # TBD - In progress...
-
 def main():
     """
     Given the properties of a celestial body in KSP, calculate all of the
@@ -59,20 +34,50 @@ def main():
             "mass_kg": 2.6457580e+19,
             "orbits": "kerbin",
             "periapsis_m": 47000000,
-            "semi_major_axis_of_orbit_m": 47000000
+            "semi_major_axis_of_orbit_m": 47000000,
+            "tallest_mountain_m": 5724.6
         }
     }
-    body = "minmus"
-    sma =  semi_major_axis_m(
-        periapsis_m=constants["minmus"]["periapsis_m"] - constants["minmus"]["equatorial_radius_m"],
-        apoapsis_m=constants["minmus"]["periapsis_m"] - constants["minmus"]["equatorial_radius_m"],
-        equatorial_radius_of_body_m=constants["minmus"]["equatorial_radius_m"]
-    )
-    print(f"{'Body ':.<30}: {body.capitalize()}")
-    print(f"{'Maximum altitude ':.<30}:")
-    msg=f"Semi-Major Axis ({body.capitalize()}) "
-    print(f"{msg:.<30}: {sma} meters")
 
+    #
+    # Select the body around which the relay satellite network will be place.
+    #
+    # TODO: This is hardcoded for now, but would be input inn the console
+    # or with a parameter.
+    #
+    body = "minmus"
+    body_constants = constants[body]
+
+    #
+    # The minumum altitude for the each satellite in the network is slightly
+    # cumbersome to calculate only because you do want to make sure that you
+    # clear any mountains so that line of sight is always guaranteed. So,
+    # instead of using the radius of the body, you need to also add the
+    # height of the tallest mountain.
+    #
+    # Then the equation is (all in meters):
+    #
+    #            mountain_height + radius
+    #  min_alt = ------------------------  -  radius
+    #                 cos 60 degrees
+    #
+    # or min_alt = (2 * (mountain_height + radius)) - radius
+    #
+    minimum_altitude_m = (2 * (body_constants["tallest_mountain_m"] + body_constants["equatorial_radius_m"])) - body_constants["equatorial_radius_m"]
+ 
+    #
+    # The maximum altitude for each satelite is at the enge of the body's
+    # sphere of influence. Ideally, you do not want to be right at that
+    # value.
+    #
+    maximum_altitude_m = body_constants["semi_major_axis_of_orbit_m"] - body_constants["equatorial_radius_m"]
+
+    #
+    # Display the results
+    #
+    print(f"{'Body ':.<30}: {body.capitalize():>17}")
+    print(f"{'Minimum RSN Altitude ':.<30}: {minimum_altitude_m:>15.5g} m")
+    print(f"{'Maximum RSN Altitude ':.<30}: {maximum_altitude_m:>15.5g} m")
 
 if __name__ == "__main__":
     main()
