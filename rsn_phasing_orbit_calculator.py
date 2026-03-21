@@ -9,7 +9,7 @@ def rsn_formatted_time(seconds: float) -> str:
     Note that a Kerbin day is 6 hours (minutes and second are normal)
 
     Since this is for limited use the milliseconds are dropped off
-    of the seconds (which would usually all be zero)
+    of the seconds (which would usually all be zero anyway)
     """
     SECONDS_PER_MINUTE = 60
     SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE
@@ -18,7 +18,6 @@ def rsn_formatted_time(seconds: float) -> str:
     # First, and subseconds will always be part of the seconds, so
     # switch things over to integers to start
     remaining_s = math.floor(seconds)
-    remaining_ms = float(seconds - float(remaining_s))
 
     days = remaining_s // SECONDS_PER_DAY
     remaining_s = remaining_s - (days * SECONDS_PER_DAY)
@@ -57,11 +56,10 @@ def main():
     Additionally, the altitude of the orbit must be within the sphere of
     influence (SOI) of the given body to be a valid option.
 
-    At the moment, the utility asks for the values of constants as well as
-    the name of the body. As the tool is used, it will record the values
-    entered and use those as defaults the next time the same body is
-    used.
+    At the moment, the body around which the satellite network is to be placed
+    is hardcoded as a BODY_TO_PLACE_RSN_AROUND constant.
     """
+    BODY_TO_PLACE_RSN_AROUND = "minmus"
 
     constants = {
         "kerbin": {
@@ -71,21 +69,33 @@ def main():
             "apoapsis_m": 47000000,
             "equatorial_radius_m": 60000,
             "mass_kg": 2.6457580e+19,
-            "orbits": "kerbin",
+            "parent_body": "kerbin",
             "periapsis_m": 47000000,
             "semi_major_axis_of_orbit_m": 47000000,
-            "standard_gravitational_parameter_m3ps2": 1.7658e+10,
+            "sphere_of_influence_radius_m": 2247428.4,
+            "standard_gravitational_parameter_m3ps2": 1.7658e+9,
             "tallest_mountain_m": 5724.6
+        },
+        "mun": {
+            "apoapsis_m": 12000000,
+            "equatorial_radius_m": 200000,
+            "mass_kg": 	9.7599066e+20,
+            "parent_body": "kerbin",
+            "periapsis_m": 12000000,
+            "semi_major_axis_of_orbit_m": 12000000,
+            "sphere_of_influence_radius_m": 2429559.1,
+            "standard_gravitational_parameter_m3ps2": 6.5138398e+10,
+            "tallest_mountain_m": 7061
         }
     }
 
     #
     # Select the body around which the relay satellite network will be place.
     #
-    # TODO: This is hardcoded for now, but would be input inn the console
+    # TODO: This is hardcoded for now, but would be input in the console
     # or with a parameter.
     #
-    body = "minmus"
+    body = BODY_TO_PLACE_RSN_AROUND
     body_constants = constants[body]
 
     #
@@ -102,15 +112,22 @@ def main():
     #                 cos 60 degrees
     #
     # or min_alt = (2 * (mountain_height + radius)) - radius
+    # or min_alt = (2 * mountain_height) + radius
     #
-    minimum_altitude_m = (2 * (body_constants["tallest_mountain_m"] + body_constants["equatorial_radius_m"])) - body_constants["equatorial_radius_m"]
+    minimum_altitude_m = (2 * body_constants["tallest_mountain_m"]) + body_constants["equatorial_radius_m"]
  
     #
-    # The maximum altitude for each satelite is at the enge of the body's
+    # The maximum altitude for each satelite is at the edge of the body's
     # sphere of influence. Ideally, you do not want to be right at that
     # value.
     #
-    maximum_altitude_m = body_constants["semi_major_axis_of_orbit_m"] - body_constants["equatorial_radius_m"]
+    # The equation is:
+    #
+    # max_alt = soi - r
+    #
+    soi = body_constants["sphere_of_influence_radius_m"]
+    r = body_constants["equatorial_radius_m"]
+    maximum_altitude_m = soi - r
 
     #
     # Display the results
@@ -135,8 +152,8 @@ def main():
     apoapsis_m = 0
     option_number = 1
     print("")
-    print(" Option   Relay Orbit Period   Phasing Orbit Period   Periapsis   Apoapsis")
-    print("======== ==================== ====================== =========== ==========")
+    print(" Option   Relay Orbit Period   Phasing Orbit Period      Periapsis         Apoapsis")
+    print("======== ==================== ====================== ================= ================")
     while apoapsis_m < maximum_altitude_m:
         #
         # The period of the phasing orbit should be 1/3 larger than
@@ -172,7 +189,7 @@ def main():
         apoapsis_m = ((2 * sma_m) - rsn_radius) - body_constants["equatorial_radius_m"]
 
         if (periapsis_m > minimum_altitude_m) and (apoapsis_m < maximum_altitude_m):
-            print(f" {option_number:>4d}     {rsn_formatted_time(rsn_period_s):>18s}   {rsn_formatted_time(phasing_period_s):>20s}   {periapsis_m:>8.6g}m   {apoapsis_m:>8.6g}m")
+            print(f" {option_number:>4d}     {rsn_formatted_time(rsn_period_s):>18s}   {rsn_formatted_time(phasing_period_s):>20s}   {periapsis_m:>14,.3f}m   {apoapsis_m:>14,.3f}m")
 
         option_number += 1
         rsn_period_s += three_hours_as_seconds
