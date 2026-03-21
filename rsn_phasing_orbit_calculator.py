@@ -134,6 +134,9 @@ def main():
     rsn_period_s = three_hours_as_seconds
     apoapsis_m = 0
     option_number = 1
+    print("")
+    print(" Option   Relay Orbit Period   Phasing Orbit Period   Periapsis   Apoapsis")
+    print("======== ==================== ====================== =========== ==========")
     while apoapsis_m < maximum_altitude_m:
         #
         # The period of the phasing orbit should be 1/3 larger than
@@ -155,8 +158,8 @@ def main():
         # a is the semi-major axis. For a circular orbit, it is the
         # radius of the orbit from the center of the body being orbited.
         #
-        radius = semi_major_axis_m(body_constants["standard_gravitational_parameter_m3ps2"], rsn_period_s)
-        periapsis_m = radius  - body_constants["equatorial_radius_m"]
+        rsn_radius = semi_major_axis_m(body_constants["standard_gravitational_parameter_m3ps2"], rsn_period_s)
+        periapsis_m = rsn_radius - body_constants["equatorial_radius_m"]
 
         #
         # Now, calculate an apoapsis for an orbit with the calculated
@@ -166,18 +169,13 @@ def main():
         #
         # TODO
         sma_m =  semi_major_axis_m(body_constants["standard_gravitational_parameter_m3ps2"], phasing_period_s)
+        apoapsis_m = ((2 * sma_m) - rsn_radius) - body_constants["equatorial_radius_m"]
 
-        print("")
-        print(" Option   Relay Orbit Period   Phasing Orbit Period   Periapsis   Apoapsis")
-        print("======== ==================== ====================== =========== ==========")
-        print(f" {option_number:>4d}     {rsn_formatted_time(rsn_period_s):>18s}   {rsn_formatted_time(phasing_period_s):>20s}   {periapsis_m:>8.6g}m")
-        print(" ")
-        print(f"{periapsis_m:>15.6g}m")
+        if (periapsis_m > minimum_altitude_m) and (apoapsis_m < maximum_altitude_m):
+            print(f" {option_number:>4d}     {rsn_formatted_time(rsn_period_s):>18s}   {rsn_formatted_time(phasing_period_s):>20s}   {periapsis_m:>8.6g}m   {apoapsis_m:>8.6g}m")
 
-        # TODO - Take this out
-        break
-
-        option_number = option_number + 1
+        option_number += 1
+        rsn_period_s += three_hours_as_seconds
 
 
 if __name__ == "__main__":
