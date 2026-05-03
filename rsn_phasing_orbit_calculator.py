@@ -1,34 +1,34 @@
+"""
+rsn_phasing_orbit_calculator.py
+
+Given the properties of a celestial body in KSP, calculate all of the
+viable options for the periapsis (pe) and apoapsis (ap) of a phasing
+orbit suitable for placing three relay satellites in orbit around the
+body so that they are equidistant from each other.
+
+This means that the period of an orbit using that periapsis and apoapsis
+is 1/3 longer than a circular orbit at the altitude of the periapsis.
+To keep the period as an easy to target value, only circular orbits with
+a period that is a multiple of 10,800 seconds (3 hours) are considered.
+
+To be valid, the orbit must be such that each satellite has line of sight
+with the other two satellites at all times. This means that a line between
+each satellite must always be higher that the highest mountaintop on the
+given body.
+
+Additionally, the altitude of the orbit must be within the sphere of
+influence (SOI) of the given body to be a valid option.
+
+At the moment, the body around which the satellite network is to be placed
+is hardcoded as a BODY_TO_PLACE_RSN_AROUND constant.
+
+(Note that this tool assumes that you will be placing all three satellites
+of a relay network from the same ship. If you are adding a sattelite to an
+existing network, then use the single_relay_phasing_insertion_calculator.py
+instead.)
+"""
+from ksp_utils import ksp_formatted_time
 import math
-
-def rsn_formatted_time(seconds: float) -> str:
-    """
-    Given a time is seconds, format it as string like
-
-      1d, 3h, 23m, 32s
-
-    Note that a Kerbin day is 6 hours (minutes and second are normal)
-
-    Since this is for limited use the milliseconds are dropped off
-    of the seconds (which would usually all be zero anyway)
-    """
-    SECONDS_PER_MINUTE = 60
-    SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE
-    SECONDS_PER_DAY = 6 * SECONDS_PER_HOUR
-
-    # First, and subseconds will always be part of the seconds, so
-    # switch things over to integers to start
-    remaining_s = math.floor(seconds)
-
-    days = remaining_s // SECONDS_PER_DAY
-    remaining_s = remaining_s - (days * SECONDS_PER_DAY)
-
-    hours = remaining_s // SECONDS_PER_HOUR
-    remaining_s = remaining_s - (hours * SECONDS_PER_HOUR)
-
-    minutes = remaining_s // SECONDS_PER_MINUTE
-    remaining_s = remaining_s - (minutes * SECONDS_PER_MINUTE)
-
-    return f"{days}d, {hours}h, {minutes}m, {remaining_s}s"
 
 def semi_major_axis_m(standard_gravitational_parameter_m3ps2: float, period_s: float) -> float:
     """
@@ -37,28 +37,6 @@ def semi_major_axis_m(standard_gravitational_parameter_m3ps2: float, period_s: f
     return (((standard_gravitational_parameter_m3ps2 * (period_s ** 2)) / (4 * (math.pi ** 2))) ** (1.0/3.0))
 
 def main():
-    """
-    Given the properties of a celestial body in KSP, calculate all of the
-    viable options for the periapsis (pe) and apoapsis (ap) of a phasing
-    orbit suitable for placing three relay satellites in orbit around the
-    body so that they are equidistant from each other.
-
-    This means that the period of an orbit using that periapsis and apoapsis
-    is 1/3 longer than a circular orbit at the altitude of the periapsis.
-    To keep the period as an easy to target value, only circular orbits with
-    a period that is a multiple of 10,800 seconds (3 hours) are considered.
-
-    To be valid, the orbit must be such that each satellite has line of sight
-    with the other two satellites at all times. This means that a line between
-    each satellite must always be higher that the highest mountaintop on the
-    given body.
-
-    Additionally, the altitude of the orbit must be within the sphere of
-    influence (SOI) of the given body to be a valid option.
-
-    At the moment, the body around which the satellite network is to be placed
-    is hardcoded as a BODY_TO_PLACE_RSN_AROUND constant.
-    """
     BODY_TO_PLACE_RSN_AROUND = "minmus"
 
     constants = {
@@ -189,7 +167,7 @@ def main():
         apoapsis_m = ((2 * sma_m) - rsn_radius) - body_constants["equatorial_radius_m"]
 
         if (periapsis_m > minimum_altitude_m) and (apoapsis_m < maximum_altitude_m):
-            print(f" {option_number:>4d}     {rsn_formatted_time(rsn_period_s):>18s}   {rsn_formatted_time(phasing_period_s):>20s}   {periapsis_m:>14,.3f}m   {apoapsis_m:>14,.3f}m")
+            print(f" {option_number:>4d}     {ksp_formatted_time(rsn_period_s):>18s}   {ksp_formatted_time(phasing_period_s):>20s}   {periapsis_m:>14,.3f}m   {apoapsis_m:>14,.3f}m")
 
         option_number += 1
         rsn_period_s += three_hours_as_seconds
