@@ -1,0 +1,35 @@
+{
+    "kerbin": {
+        "apoapsis_from_parent_center_m": 13599840256,
+        "equatorial_radius_m": 600000,
+        "mass_kg": 5.2915158e+22,
+        "parent_body": "kerbol",
+        "periapsis_from_parent_center_m": 13599840256,
+        "semi_major_axis_of_orbit_m": 13599840256,
+        "sphere_of_influence_radius_m": 84159286,
+        "standard_gravitational_parameter_m3ps2": 3.5316e+12,
+        "tallest_mountain_m": 6767
+    },
+    "minmus": {
+        "apoapsis_from_parent_center_m": 47000000,
+        "equatorial_radius_m": 60000,
+        "mass_kg": 2.6457580e+19,
+        "parent_body": "kerbin",
+        "periapsis_from_parent_center_m": 47000000,
+        "semi_major_axis_of_orbit_m": 47000000,
+        "sphere_of_influence_radius_m": 2247428.4,
+        "standard_gravitational_parameter_m3ps2": 1.7658e+9,
+        "tallest_mountain_m": 5724.6
+    },
+    "mun": {
+        "apoapsis_from_parent_center_m": 12000000,
+        "equatorial_radius_m": 200000,
+        "mass_kg": 	9.7599066e+20,
+        "parent_body": "kerbin",
+        "periapsis_from_parent_center_m": 12000000,
+        "semi_major_axis_of_orbit_m": 12000000,
+        "sphere_of_influence_radius_m": 2429559.1,
+        "standard_gravitational_parameter_m3ps2": 6.5138398e+10,
+        "tallest_mountain_m": 7061
+    }
+}
