@@ -15,7 +15,64 @@ import json
 import math
 from rich import print
 
-def get_apoapsis_and_periapsis(parent_body_name: str, parent_body_constants: dict) -> tuple[float, float]:
+def seconds_in_darkness(
+    apoapsis_m: float,
+    periapsis_m: float,
+    parent_equatorial_radius_m: float,
+    parent_standard_gravitational_parameter_m3ps2: float) -> float:
+    """
+    Calculate the amount of time a satellite at the given orbit will be in the dark.
+
+    Args:
+        apoapsis_m (float): The altitude above sea level of the satellite at its
+            highest point in its orbit in meters
+        periapsis_m (float): The altitude above sea level of the satellite at its
+            lowest point in its orbit in meters
+        parent_equatorial_radius_m (float): The radius, in meters, of the celestial
+            body around which the satellite is orbiting
+        parent_standard_gravitational_parameter_m3ps2 (float): The gravitational
+            constant (i.e. µ), in meters^3 / s^2, of the celestial
+            body around which the satellite is orbiting
+
+    Returns:
+        float: The amount of time, in seconds that the satellite would be in the
+            dark when orbiting around the equater and ignoring eclipses.
+    """
+    
+    # The radius of the parent body
+    R = parent_equatorial_radius_m
+
+    # The apoapsis measured from the center of the body
+    r_a = apoapsis_m + R
+
+    # The periapsis measured from the center of the body
+    r_p = periapsis_m + R
+
+    # The semi-major axis
+    a = (r_a + r_p) / 2
+
+    # The semi-minor axis
+    b = math.sqrt(r_a * r_p)
+
+    # The eccentricity
+    e = (r_a - r_p) / (r_a + r_p)
+
+    # The semi-latus rectum of the orbital ellipse
+    l = (2 * r_a * r_p) / (r_a + r_p)
+
+    # The gravitational parameter
+    mu = parent_standard_gravitational_parameter_m3ps2
+
+    # The specific angular momentum
+    h = math.sqrt(l * mu)
+
+    # The time in the dark
+    t_d = ((2 * a * b) / h) * (math.asin(R / b) + ((e * R) / b) )
+
+    return t_d
+
+
+def _get_apoapsis_and_periapsis(parent_body_name: str, parent_body_constants: dict) -> tuple[float, float]:
     """
     Gets, from the user, the planned apopasis and periapsis of the satellite
     for which the calculations are being made. Both are measured from sea level,
@@ -50,8 +107,8 @@ def get_apoapsis_and_periapsis(parent_body_name: str, parent_body_constants: dic
 
     return calculated_values["apoapsis"], calculated_values["periapsis"]
 
-def main():
 
+def main():
     #
     # First, read in the body constants and then extract the names of the
     # bodies listed in it.
@@ -82,41 +139,17 @@ def main():
         except (ValueError, KeyError) as err:
             print(f"{repr(err)}")
 
-    apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(parent_body, parent_body_constants)
+    apoapsis_m, periapsis_m = _get_apoapsis_and_periapsis(parent_body, parent_body_constants)
 
-    # The radius of the parent body
-    R = parent_body_constants["equatorial_radius_m"]
+    time_in_dark_s = seconds_in_darkness(
+        apoapsis_m,
+        periapsis_m,
+        parent_body_constants["equatorial_radius_m"],
+        parent_body_constants["standard_gravitational_parameter_m3ps2"]
+    )
 
-    # The apoapsis measured from the center of the body
-    r_a = apoapsis_m + R
-
-    # The periapsis measured from the center of the body
-    r_p = periapsis_m + R
-
-    # The semi-major axis
-    a = (r_a + r_p) / 2
-
-    # The semi-minor axis
-    b = math.sqrt(r_a * r_p)
-
-    # The eccentricity
-    e = (r_a - r_p) / (r_a + r_p)
-
-    # The semi-latus rectum of the orbital ellipse
-    l = (2 * r_a * r_p) / (r_a + r_p)
-
-    # The gravitational parameter
-    mu = parent_body_constants["standard_gravitational_parameter_m3ps2"]
-
-    # The specific angular momentum
-    h = math.sqrt(l * mu)
-
-    # The time in the dark
-    t_d = ((2 * a * b) / h) * (math.asin(R / b) + ((e * R) / b) )
-
-    print(f"The time in the dark is: {t_d} seconds")
-
+    print(f"The time in the dark is: {math.ceil(time_in_dark_s)} seconds")
+    print()
 
 if __name__ == "__main__":
     main()
-
