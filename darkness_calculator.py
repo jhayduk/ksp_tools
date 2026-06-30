@@ -38,7 +38,6 @@ def seconds_in_darkness(
         float: The amount of time, in seconds that the satellite would be in the
             dark when orbiting around the equater and ignoring eclipses.
     """
-    
     # The radius of the parent body
     R = parent_equatorial_radius_m
 
