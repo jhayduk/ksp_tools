@@ -1,7 +1,7 @@
 """
 darkness_calculator.py
 
-Calculates the amount of time a satelite around a given body would be in
+Calculates the amount of time a craft around a given body would be in
 darkness and in the light. This can be used to calulate the size of
 battery storage needed.
 
