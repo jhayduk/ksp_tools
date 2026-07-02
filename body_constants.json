@@ -1,5 +1,5 @@
 {
-    "kerbin": {
+    "Kerbin": {
         "apoapsis_from_parent_center_m": 13599840256,
         "equatorial_radius_m": 600000,
         "mass_kg": 5.2915158e+22,
@@ -10,7 +10,7 @@
         "standard_gravitational_parameter_m3ps2": 3.5316e+12,
         "tallest_mountain_m": 6767
     },
-    "minmus": {
+    "Minmus": {
         "apoapsis_from_parent_center_m": 47000000,
         "equatorial_radius_m": 60000,
         "mass_kg": 2.6457580e+19,
@@ -21,7 +21,7 @@
         "standard_gravitational_parameter_m3ps2": 1.7658e+9,
         "tallest_mountain_m": 5724.6
     },
-    "mun": {
+    "Mun": {
         "apoapsis_from_parent_center_m": 12000000,
         "equatorial_radius_m": 200000,
         "mass_kg": 	9.7599066e+20,
