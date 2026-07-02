@@ -32,7 +32,7 @@ def main():
     continuous_consumption_ecps = float(input("Total continuous electrical consumption, in EC/s: "))
 
     print()
-    print("One time, or infrequent, electrical consumption is usually for things")
+    print("One time, or discrete, electrical consumption is usually for things")
     print("like transmitting science. This goes towards the minimum amount of")
     print("battery storage needed. The tool assumes that since this is infrequent,")
     print("you probably have a choice of when to do it, and can do it only during the")
@@ -40,10 +40,10 @@ def main():
     print("before going into darkness.")
     print("If none are expected, a value of 0 can be entered.")
     print()
-    onetime_consumpution_ec = float(input("Largest one time electrical consumption in EC: "))
+    discrete_consumpution_ec = float(input("Largest discrete electrical consumption in EC: "))
 
     #
-    # Now, the amount of storage required is the greater of the onetime consumption
+    # Now, the amount of storage required is the greater of the discrete consumption
     # amount, or the continuous amount for the time the craft is in the dark.
     #
     time_in_dark_s = calculate_darkness_s(
@@ -55,7 +55,7 @@ def main():
 
     continuous_consumption_ec = continuous_consumption_ecps * time_in_dark_s
 
-    storage_required_ec = max(onetime_consumpution_ec, continuous_consumption_ec)
+    storage_required_ec = max(discrete_consumpution_ec, continuous_consumption_ec)
 
     #
     # With the storage required calculated, the amount of generation required
