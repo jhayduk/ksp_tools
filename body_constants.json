@@ -31,5 +31,49 @@
         "sphere_of_influence_radius_m": 2429559.1,
         "standard_gravitational_parameter_m3ps2": 6.5138398e+10,
         "tallest_mountain_m": 7061
+    },
+    "Eve": {
+        "apoapsis_from_parent_center_m": 9931011387,
+        "equatorial_radius_m": 700000,
+        "mass_kg": 	1.2243980e+23,
+        "parent_body": "kerbol",
+        "periapsis_from_parent_center_m": 9734357701,
+        "semi_major_axis_of_orbit_m": 9832684544,
+        "sphere_of_influence_radius_m": 85109365,
+        "standard_gravitational_parameter_m3ps2": 8.1717302e+12,
+        "tallest_mountain_m": 975000
+    },
+    "Gilly": {
+        "apoapsis_from_parent_center_m": 48825000,
+        "equatorial_radius_m": 13000,
+        "mass_kg": 	1.2420363e+17,
+        "parent_body": "eve",
+        "periapsis_from_parent_center_m": 14175000,
+        "semi_major_axis_of_orbit_m": 31500000,
+        "sphere_of_influence_radius_m": 126123.27,
+        "standard_gravitational_parameter_m3ps2": 8289449.8,
+        "tallest_mountain_m": 7500
+    },
+    "Duna": {
+        "apoapsis_from_parent_center_m": 21783189163,
+        "equatorial_radius_m": 320000,
+        "mass_kg": 	4.5154270e+21,
+        "parent_body": "kerbol",
+        "periapsis_from_parent_center_m": 19669121365,
+        "semi_major_axis_of_orbit_m": 20726155264,
+        "sphere_of_influence_radius_m": 47921949,
+        "standard_gravitational_parameter_m3ps2": 3.0136321e+11,
+        "tallest_mountain_m": 42500
+    },
+    "Ike": {
+        "apoapsis_from_parent_center_m": 3296000,
+        "equatorial_radius_m": 130000,
+        "mass_kg": 	2.7821615e+20,
+        "parent_body": "duna",
+        "periapsis_from_parent_center_m": 3104000,
+        "semi_major_axis_of_orbit_m": 3200000,
+        "sphere_of_influence_radius_m": 1049598.9,
+        "standard_gravitational_parameter_m3ps2": 1.8568369e+10,
+        "tallest_mountain_m": 13500
     }
 }
