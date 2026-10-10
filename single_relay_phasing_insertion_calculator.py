@@ -2,7 +2,7 @@
 single_relay_phasing_insertion_calculator.py
 
 Given the characteristics of an existing relay satellite network,
-and the relative pahse angle of a new satellite, calculate the period
+and the relative phase angle of a new satellite, calculate the period
 of phasing orbit such that after a single orbit, the new satellite
 will be exactly 1/3 of an orbit ahead or behind (as selected) of the
 target existing satellite.
