@@ -15,6 +15,8 @@ solar_panel_efficiency_calculator.py
     from the Sun and the square of the furthest distance the panel can be from the Sun.
     
     Note that the calculation assumes full exposure.
+
+    At the moment, this only works for planets.
 """
 from ksp_utils import (
     Apsis,
