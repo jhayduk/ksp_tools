@@ -18,7 +18,7 @@ def get_apsis(
     parent_sphere_of_influence_radius_m: float  
 ) -> float:
     """
-    Gets, from the user, the apsis )apoasis or periapsis of a craft for
+    Gets, from the user, the apsis (apoasis or periapsis) of a craft for
     which the calculations are being made. This is measured from sea level,
     as it would appear on the maneuver and altitude displays, and must be
     within the sphere of influence (SOI) of the parent body.
@@ -48,9 +48,9 @@ def get_apsis(
     got_valid_value = False
     while not got_valid_value:
         try:
-            apsis_m = float(input(f"Planned {apsis} of craft (from sea level, in meters): "))
+            apsis_m = float(input(f"Planned {apsis.value} of craft (from sea level, in meters): "))
             if apsis_m > soi_without_radius_m:
-                print(f"[yellow]The {apsis} must be be within {parent_body_name}'s SOI ({soi_without_radius_m}m)")
+                print(f"[yellow]The {apsis.value} must be be within {parent_body_name}'s SOI ({soi_without_radius_m}m)")
             else:
                 got_valid_value = True
         except (ValueError, KeyError) as err:
@@ -82,8 +82,8 @@ def get_apoapsis_and_periapsis(
           as measured from the sea level of the parent body.
     """
     calculated_values = {
-        "apoapsis": None,
-        "periapsis": None
+        Apsis.APOAPSIS: None,
+        Apsis.PERIAPSIS: None
     }
 
     for apsis in calculated_values:
@@ -94,7 +94,7 @@ def get_apoapsis_and_periapsis(
             parent_sphere_of_influence_radius_m
         )
 
-    return calculated_values["apoapsis"], calculated_values["periapsis"]
+    return calculated_values[Apsis.APOAPSIS], calculated_values[Apsis.PERIAPSIS]
 
 def get_celestial_body_constants(parent_body_name: str) -> dict:
     """
@@ -176,27 +176,3 @@ def ksp_formatted_time(seconds: int | float) -> str:
     remaining_s = remaining_s - (minutes * SECONDS_PER_MINUTE)
 
     return f"{days}d, {hours}h, {minutes}m, {remaining_s}s"
-
-def solar_panel_efficiency(
-        parent_body_apoapsis_from_kerbol_center_m: float,
-        parent_body_equatorial_radius_m: float,
-        apoapsis_m: float
-        ) -> float:
-    """
-    Given the max distance of a parent body upon, or around, which a solar
-    panel is placed, the equatorial radius of that same parent body, and the
-    aposapsis of the craft containing the solar panel (or the alititude on
-    the surface where the panel is placed), returns an efficiency factor
-    that can be multiplied to the expected EC generation value to adjust it
-    for its distance from the Sun (Kerbol).
-
-    This is calculated as the ratio of the square of the distance Kerbin is
-    from the Sun and the square of the furthest distance the panel can be from the Sun.
-    
-    Note that the calculation assumes full exposure.
-    """
-    kerbin_apoapsis_from_kerbol_center_m = get_celestial_body_constants("Kerbin")["apoapsis_from_parent_center_m"]
-
-    panel_distance_from_kerbol_center_m = parent_body_apoapsis_from_kerbol_center_m + parent_body_equatorial_radius_m + apoapsis_m
-
-    return (kerbin_apoapsis_from_kerbol_center_m ** 2) / (panel_distance_from_kerbol_center_m ** 2)

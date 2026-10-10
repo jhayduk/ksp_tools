@@ -11,10 +11,10 @@ from darkness_calculator import calculate_darkness_s
 from ksp_utils import (
     get_apoapsis_and_periapsis,
     get_parent_body_name_and_constants,
-    solar_panel_efficiency,
 )
 from lighttime_calculator import calculate_lighttime_s
 from rich import print
+from solar_panel_efficiency_calculator import solar_panel_efficiency
 
 def main():
     parent_body, parent_body_constants = get_parent_body_name_and_constants()
