@@ -13,7 +13,7 @@ darkness_calcuulator.py
 from darkness_calculator import calculate_darkness_s
 from ksp_utils import (
     get_apoapsis_and_periapsis,
-    get_parent_body_name_and_contstants,
+    get_parent_body_name_and_constants,
 )
 from orbit_period_calculator import calculate_period_s
 from rich import print
@@ -58,7 +58,7 @@ def calculate_lighttime_s(
     return orbital_period_s - time_in_dark_s
 
 def main():
-    parent_body, parent_body_constants = get_parent_body_name_and_contstants()
+    parent_body, parent_body_constants = get_parent_body_name_and_constants()
 
     apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(
         parent_body,

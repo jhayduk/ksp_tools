@@ -3,8 +3,60 @@ ksp_ utils.py
 
 A collection of miscellaneous utility functions in support of the ksp tools.
 """
+from enum import Enum
 import json
 from rich import print
+
+class Apsis(Enum):
+    APOAPSIS = "apoapsis"
+    PERIAPSIS = "periapsis"
+
+def get_apsis(
+    apsis: Apsis,
+    parent_body_name: str,
+    parent_equatorial_radius_m: float,
+    parent_sphere_of_influence_radius_m: float  
+) -> float:
+    """
+    Gets, from the user, the apsis )apoasis or periapsis of a craft for
+    which the calculations are being made. This is measured from sea level,
+    as it would appear on the maneuver and altitude displays, and must be
+    within the sphere of influence (SOI) of the parent body.
+
+    Args:
+      apsis (Apis): Either "apoapsis" or "periapsis". Specifies which of the
+        two values to obtain from the user.
+      parent_body_name (str): The name of the celestial body will be orbiting
+        around. This is only used for prompts and error messages.
+      parent_equatorial_radius_m (float): The radius, in meters, of the celestial
+          body around which the craft is orbiting
+      parent_sphere_of_influence_radius_m (float): The sphere of influence (SOI), in meters,
+          of the celestial body around which the craft is orbiting. Both apsides
+          must be within the parent body's SOI to be valid.
+
+    Returns:
+        apsis_m: float The apoapsis or periapsis, in meters, as measured
+        from sea level of the parent body.
+    """
+    #
+    # The spehere of influence (SOI) of the parenet body is recorded from the center
+    # of the body. Subtract the radius of the body, so the result can be used
+    # for checking.
+    #
+    soi_without_radius_m = parent_sphere_of_influence_radius_m - parent_equatorial_radius_m
+
+    got_valid_value = False
+    while not got_valid_value:
+        try:
+            apsis_m = float(input(f"Planned {apsis} of craft (from sea level, in meters): "))
+            if apsis_m > soi_without_radius_m:
+                print(f"[yellow]The {apsis} must be be within {parent_body_name}'s SOI ({soi_without_radius_m}m)")
+            else:
+                got_valid_value = True
+        except (ValueError, KeyError) as err:
+            print(f"{repr(err)}")
+
+    return apsis_m
 
 def get_apoapsis_and_periapsis(
         parent_body_name: str,
@@ -34,29 +86,30 @@ def get_apoapsis_and_periapsis(
         "periapsis": None
     }
 
-    #
-    # The spehere of influence (SOI) of the parenet body is recorded from the center
-    # of the body. Subtract the radius of the body, so the result can be used
-    # in a couple of checks.
-    #
-    soi_without_radius_m = parent_sphere_of_influence_radius_m - parent_equatorial_radius_m
-
     for apsis in calculated_values:
-        got_valid_value = False
-        while not got_valid_value:
-            try:
-                calculated_values[apsis] = float(input(f"Planned {apsis} of craft (from sea level, in meters): "))
-                if calculated_values[apsis] > soi_without_radius_m:
-                    print(f"[yellow]The {apsis} must be be within {parent_body_name}'s SOI ({soi_without_radius_m}m)")
-                else:
-                    got_valid_value = True
-            except (ValueError, KeyError) as err:
-                print(f"{repr(err)}")
+        calculated_values[apsis] = get_apsis(
+            apsis,
+            parent_body_name,
+            parent_equatorial_radius_m,
+            parent_sphere_of_influence_radius_m
+        )
 
     return calculated_values["apoapsis"], calculated_values["periapsis"]
 
+def get_celestial_body_constants(parent_body_name: str) -> dict:
+    """
+    Given the name of a celestial body, return the constants for that body.
 
-def get_parent_body_name_and_contstants() -> tuple[str, dict]:
+    This utility assumes that the body name is valid and will return throw
+    an exception if it is not.
+    """
+    with open('body_constants.json', 'r') as file:
+        all_body_constants = json.load(file)
+
+    return all_body_constants[parent_body_name]
+
+
+def get_parent_body_name_and_constants() -> tuple[str, dict]:
     """
     Gets, from the user, the name of the celestial body that the craft is,
     or will be, orbiting around and returns the name and its constants.
@@ -83,7 +136,7 @@ def get_parent_body_name_and_contstants() -> tuple[str, dict]:
         try:
             parent_body = input("Type the name of body the craft is/will be orbiting: ").capitalize()
             if parent_body in known_bodies:
-                parent_body_constants = all_body_constants[parent_body]
+                parent_body_constants = get_celestial_body_constants(parent_body)
                 got_valid_value = True
             else:
                 print()
@@ -123,3 +176,27 @@ def ksp_formatted_time(seconds: int | float) -> str:
     remaining_s = remaining_s - (minutes * SECONDS_PER_MINUTE)
 
     return f"{days}d, {hours}h, {minutes}m, {remaining_s}s"
+
+def solar_panel_efficiency(
+        parent_body_apoapsis_from_kerbol_center_m: float,
+        parent_body_equatorial_radius_m: float,
+        apoapsis_m: float
+        ) -> float:
+    """
+    Given the max distance of a parent body upon, or around, which a solar
+    panel is placed, the equatorial radius of that same parent body, and the
+    aposapsis of the craft containing the solar panel (or the alititude on
+    the surface where the panel is placed), returns an efficiency factor
+    that can be multiplied to the expected EC generation value to adjust it
+    for its distance from the Sun (Kerbol).
+
+    This is calculated as the ratio of the square of the distance Kerbin is
+    from the Sun and the square of the furthest distance the panel can be from the Sun.
+    
+    Note that the calculation assumes full exposure.
+    """
+    kerbin_apoapsis_from_kerbol_center_m = get_celestial_body_constants("Kerbin")["apoapsis_from_parent_center_m"]
+
+    panel_distance_from_kerbol_center_m = parent_body_apoapsis_from_kerbol_center_m + parent_body_equatorial_radius_m + apoapsis_m
+
+    return (kerbin_apoapsis_from_kerbol_center_m ** 2) / (panel_distance_from_kerbol_center_m ** 2)

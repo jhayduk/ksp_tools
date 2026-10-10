@@ -2,7 +2,7 @@
 battery_and_generation_calculator.py
 
 Calculates the amount of battery storage and electirical generation
-would be needed for a craft in orbit around a given celestial body.
+that would be needed for a craft in orbit around a given celestial body.
 
 This generally applies to all craft, but is most typically calculated
 for probes and space stations.
@@ -10,13 +10,14 @@ for probes and space stations.
 from darkness_calculator import calculate_darkness_s
 from ksp_utils import (
     get_apoapsis_and_periapsis,
-    get_parent_body_name_and_contstants,
+    get_parent_body_name_and_constants,
+    solar_panel_efficiency,
 )
 from lighttime_calculator import calculate_lighttime_s
 from rich import print
 
 def main():
-    parent_body, parent_body_constants = get_parent_body_name_and_contstants()
+    parent_body, parent_body_constants = get_parent_body_name_and_constants()
 
     apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(
         parent_body,
@@ -71,7 +72,13 @@ def main():
 
     recharge_required_ecps = storage_required_ec / time_in_light_s
 
-    generation_required_ecps = continuous_consumption_ecps + recharge_required_ecps
+    panel_efficiency_factor = solar_panel_efficiency(
+        parent_body_constants["apoapsis_from_parent_center_m"],
+        parent_body_constants["equatorial_radius_m"],
+        apoapsis_m
+    )
+
+    generation_required_ecps = (continuous_consumption_ecps + recharge_required_ecps) / panel_efficiency_factor
 
     print(f"The minumum amount of storage (battery) required is {storage_required_ec} EC")
     print(f"The minimum amount of generation required is {generation_required_ecps} EC/s")

@@ -10,7 +10,7 @@ https://forum.kerbalspaceprogram.com/topic/203611-how-to-determine-the-orbital-p
 import json
 from ksp_utils import (
     get_apoapsis_and_periapsis,
-    get_parent_body_name_and_contstants,
+    get_parent_body_name_and_constants,
     ksp_formatted_time,
 )
 import math
@@ -62,7 +62,7 @@ def calculate_period_s(
 
 def main():
 
-    parent_body, parent_body_constants = get_parent_body_name_and_contstants()
+    parent_body, parent_body_constants = get_parent_body_name_and_constants()
 
     apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(
         parent_body,
