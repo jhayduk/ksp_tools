@@ -73,6 +73,7 @@ def main():
     recharge_required_ecps = storage_required_ec / time_in_light_s
 
     panel_efficiency_factor = solar_panel_efficiency(
+        parent_body,
         parent_body_constants["apoapsis_from_parent_center_m"],
         parent_body_constants["equatorial_radius_m"],
         apoapsis_m

@@ -12,22 +12,27 @@ solar_panel_efficiency_calculator.py
     for its distance from the Sun (Kerbol).
 
     This is calculated as the ratio of the square of the distance Kerbin is
-    from the Sun and the square of the furthest distance the panel can be from the Sun.
+    from the Sun and the square of the furthest distance the panel
+    can be from the Sun.
+
+    This also works for moons, which assume that the moon is at its
+    periapsis with its parent body and, at the same time, the parent body
+    is at is apoapsis with Kerbol. This generates a worst case value.
     
     Note that the calculation assumes full exposure.
-
-    At the moment, this only works for planets.
 """
 from ksp_utils import (
     Apsis,
     get_apsis,
     get_celestial_body_constants,
     get_parent_body_name_and_constants,
+    is_moon
 )
 from lighttime_calculator import calculate_lighttime_s
 from rich import print
 
 def solar_panel_efficiency(
+        parent_body_name: str,
         parent_body_apoapsis_from_kerbol_center_m: float,
         parent_body_equatorial_radius_m: float,
         apoapsis_m: float
@@ -49,6 +54,13 @@ def solar_panel_efficiency(
 
     panel_distance_from_kerbol_center_m = parent_body_apoapsis_from_kerbol_center_m + parent_body_equatorial_radius_m + apoapsis_m
 
+    # If the parent body is a moon, then add the apoapsis (from the center)
+    # if the moon's parent planet
+    if is_moon(parent_body_name):
+        moon_body_contants = get_celestial_body_constants(parent_body_name)
+        planet_body_contants = get_celestial_body_constants(moon_body_contants["parent_body"])
+        panel_distance_from_kerbol_center_m += planet_body_contants["apoapsis_from_parent_center_m"]
+
     return (kerbin_apoapsis_from_kerbol_center_m ** 2) / (panel_distance_from_kerbol_center_m ** 2)
 
 
@@ -63,6 +75,7 @@ def main():
     )
 
     panel_efficiency_factor = solar_panel_efficiency(
+        parent_body,
         parent_body_constants["apoapsis_from_parent_center_m"],
         parent_body_constants["equatorial_radius_m"],
         apoapsis_m
