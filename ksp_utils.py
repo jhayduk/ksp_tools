@@ -148,19 +148,9 @@ def get_parent_body_name_and_constants() -> tuple[str, dict]:
     return parent_body, parent_body_constants
 
 
-def is_moon(celestial_body_name: str) -> bool:
-    """
-    Returns True if the given celestial body is a moon, and False otherwise.
-    
-    This is determined by looking at the given body's parent in the
-    body_constants.json file. If the parent is Kerbol (i.e. the Sun), then
-    it is considered a planet, otherwise, it is considered a moon.
-    """
-
-
 def is_known_celestial_body(celestial_body_name: str) -> bool:
     """
-    Retruns True if the given celestial body is in the body_constants.json
+    Returns True if the given celestial body is in the body_constants.json
     file, and False otherwise.
 
     Body names are nromalized to capitalized before checking
@@ -169,6 +159,22 @@ def is_known_celestial_body(celestial_body_name: str) -> bool:
         all_body_constants = json.load(file)
     return celestial_body_name.capitalize() in list(all_body_constants)
 
+
+def is_moon(celestial_body_name: str) -> bool:
+    """
+    Returns True if the given celestial body is a moon, and False otherwise.
+
+    This is determined by looking at the given body's parent in the
+    body_constants.json file. If the parent is Kerbol (i.e. the Sun), then
+    it is considered a planet, otherwise, it is considered a moon.
+    """
+    with open('body_constants.json', 'r') as file:
+        all_body_constants = json.load(file)
+
+    if is_known_celestial_body(celestial_body_name):
+        return all_body_constants[celestial_body_name]["parent_body"] != "Kerbol"
+    else:
+        raise ValueError(f"{celestial_body_name} is not a known celestial body")
 
 def ksp_formatted_time(seconds: int | float) -> str:
     """
