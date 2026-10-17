@@ -81,12 +81,9 @@ def get_apoapsis_and_periapsis(
         (apoapsis_m: float, periapsis_m: float) The apoapsis and periapsis, in meters,
           as measured from the sea level of the parent body.
     """
-    calculated_values = {
-        Apsis.APOAPSIS: None,
-        Apsis.PERIAPSIS: None
-    }
+    calculated_values: dict[Apsis, float] = {}
 
-    for apsis in calculated_values:
+    for apsis in (Apsis.APOAPSIS, Apsis.PERIAPSIS):
         calculated_values[apsis] = get_apsis(
             apsis,
             parent_body_name,
