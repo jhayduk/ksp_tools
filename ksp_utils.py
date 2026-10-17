@@ -2,6 +2,9 @@
 ksp_ utils.py
 
 A collection of miscellaneous utility functions in support of the ksp tools.
+
+The functions that the name of a celetial body, will raise a ValueError if that
+name is not recognized (because it is not in the body_constants.json file).
 """
 from enum import Enum
 from functools import cache
@@ -18,10 +21,6 @@ def add_radius(parent_body_name: str, altitude_above_sea_level_m: float) -> floa
     body as it would appear on the maneuver and altitude displays, return the
     same altitude expressed as a distance from the center of the body. In other
     words, with the radius of the body added to it.
-
-    This function assumes that the body name is valid and will throw
-    a ValueError exception if it is not (because the function it calls will throw
-    an exception).
 
     This function allows altitude_above_sea_level_m to be negative to allow it to
     be used in valeys and ravines on the surface, but will raise a ValueError
@@ -246,10 +245,6 @@ def semi_major_axis_radius_m(parent_body_name: str, apoapis_m: float, periapsis_
     calculated, and both the apoapis and periapis of the orbits in meter above
     "sea level" for that body, return the semi-major axis in meters from the
     center of the body.
-
-    This function assumes that the body name is valid and will throw
-    a ValueError exception if it is not (because the function it calls will throw
-    an exception).
     """
     body_constants = get_celestial_body_constants(parent_body_name)
 
@@ -263,11 +258,7 @@ def subtract_radius(parent_body_name: str, object_radius_from_parent_center_m: f
     that body as it would appear on the maneuver and altitude displays. In other
     words, with the radius of the body subtracted from it.
 
-    This utility assumes that the body name is valid and will throw
-    a ValueError exception if it is not (because the function it calls will throw
-    an exception).
-
-    Additionally, this function will throw a ValueError exception if the passed in
+    This function will throw a ValueError exception if the passed in
     object_radius_from_parent_center_m is negative as this will result in an invalid
     altitude.
     """
