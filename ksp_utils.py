@@ -4,12 +4,29 @@ ksp_ utils.py
 A collection of miscellaneous utility functions in support of the ksp tools.
 """
 from enum import Enum
+from functools import cache
 import json
 from rich import print
 
 class Apsis(Enum):
     APOAPSIS = "apoapsis"
     PERIAPSIS = "periapsis"
+
+def add_radius(body_name: str, altitude_above_sea_level_m: float) -> float:
+    """
+    Given the name of a celestial body and an altitude above "sea level" of that
+    body as it would appear on the maneuver and altitude displays, return the
+    same altitude expressed as a distance from the center of the body. In other
+    words, with the radius of the body added to it.
+
+    This utility assumes that the body name is valid and will throw
+    an exception if it is not (because the function it calls will throw
+    an exception).
+    """
+    body_constants = get_celestial_body_constants(body_name)
+
+    return altitude_above_sea_level_m + body_constants["equatorial_radius_m"]
+
 
 def get_apsis(
     apsis: Apsis,
@@ -93,13 +110,21 @@ def get_apoapsis_and_periapsis(
 
     return calculated_values[Apsis.APOAPSIS], calculated_values[Apsis.PERIAPSIS]
 
+
+@cache
 def get_celestial_body_constants(parent_body_name: str) -> dict:
     """
     Given the name of a celestial body, return the constants for that body.
 
-    This utility assumes that the body name is valid and will return throw
-    an exception if it is not.
+    This function is cached, so it is safe to call it multiple times even though
+    it gets the constants from a file.
+
+    This utility assumes that the body name is valid and will throw
+    a ValueError exception if it is not.
     """
+    if not is_known_celestial_body(parent_body_name):
+        raise ValueError(f"{parent_body_name} was not found in the body_constants.json file. It is not aknown celestial body.")
+
     with open('body_constants.json', 'r') as file:
         all_body_constants = json.load(file)
 
@@ -144,11 +169,14 @@ def get_parent_body_name_and_constants() -> tuple[str, dict]:
 
     return parent_body, parent_body_constants
 
-
+@cache
 def is_known_celestial_body(celestial_body_name: str) -> bool:
     """
     Returns True if the given celestial body is in the body_constants.json
     file, and False otherwise.
+
+    This function is cached, so it is safe to call it multiple times even though
+    it gets the constants from a file.
 
     Body names are nromalized to capitalized before checking
     """

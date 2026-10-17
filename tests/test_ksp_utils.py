@@ -1,5 +1,23 @@
 import pytest
-from ksp_utils import is_known_celestial_body, is_moon
+from ksp_utils import add_radius, is_known_celestial_body, is_moon
+
+
+# =====================
+# add_radius() tests
+# =====================
+class TestAddRadius:
+    # The function does not check sea level, but test anyway
+    def test_add_radius_at_sea_level(self):
+        assert add_radius("Kerbin", 0) == pytest.approx(600000)
+
+    def test_add_radius_above_sea_level(self):
+        assert add_radius("Kerbin", 140000) == pytest.approx(140000 + 600000)
+
+    # The function should raise a ValueError if name unknown
+    def test_add_radius_unknown_body(self):
+        with pytest.raises(ValueError):
+            add_radius("NotABody", 140000)
+
 
 # ==================
 # is_moon() tests
