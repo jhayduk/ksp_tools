@@ -1,5 +1,11 @@
 import pytest
-from ksp_utils import add_radius, is_known_celestial_body, is_moon, subtract_radius
+from ksp_utils import (
+    add_radius,
+    is_known_celestial_body,
+    is_moon,
+    semi_major_axis_radius_m,
+    subtract_radius,
+)
 
 
 # =====================
@@ -72,6 +78,17 @@ class TestIsKnownCelestialBody:
     # The function should flag unknown names
     def test_unknown_body(self):
         assert is_known_celestial_body("NotABody") == False
+
+
+# =================================
+# semi_major_axis_radius_m tests
+# =================================
+class TestSemiMajorAxisRadius:
+    def test_semi_major_axis_radius_circular(self):
+        assert semi_major_axis_radius_m("Kerbin", 100000, 100000) == pytest.approx(700000)
+
+    def test_semi_major_axis_radius_elliptical(self):
+        assert semi_major_axis_radius_m("Kerbin", 403000, 303000) == pytest.approx(953000)
 
 
 # ==========================

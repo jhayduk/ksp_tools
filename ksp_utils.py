@@ -240,6 +240,22 @@ def ksp_formatted_time(seconds: int | float) -> str:
     return f"{days}d, {hours}h, {minutes}m, {remaining_s}s"
 
 
+def semi_major_axis_radius_m(parent_body_name: str, apoapis_m: float, periapsis_m: float) -> float:
+    """
+    Given the name of the celestial body around which the semi-major axis is to
+    calculated, and both the apoapis and periapis of the orbits in meter above
+    "sea level" for that body, return the semi-major axis in meters from the
+    center of the body.
+
+    This function assumes that the body name is valid and will throw
+    a ValueError exception if it is not (because the function it calls will throw
+    an exception).
+    """
+    body_constants = get_celestial_body_constants(parent_body_name)
+
+    return ((apoapis_m + periapsis_m) / 2) + body_constants["equatorial_radius_m"]
+
+
 def subtract_radius(parent_body_name: str, object_radius_from_parent_center_m: float) -> float:
     """
     Given the name of a celestial body and the distance above the center of that
