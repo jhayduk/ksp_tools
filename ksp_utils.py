@@ -12,18 +12,27 @@ class Apsis(Enum):
     APOAPSIS = "apoapsis"
     PERIAPSIS = "periapsis"
 
-def add_radius(body_name: str, altitude_above_sea_level_m: float) -> float:
+def add_radius(parent_body_name: str, altitude_above_sea_level_m: float) -> float:
     """
     Given the name of a celestial body and an altitude above "sea level" of that
     body as it would appear on the maneuver and altitude displays, return the
     same altitude expressed as a distance from the center of the body. In other
     words, with the radius of the body added to it.
 
-    This utility assumes that the body name is valid and will throw
-    an exception if it is not (because the function it calls will throw
+    This function assumes that the body name is valid and will throw
+    a ValueError exception if it is not (because the function it calls will throw
     an exception).
+
+    This function allows altitude_above_sea_level_m to be negative to allow it to
+    be used in valeys and ravines on the surface, but will raise a ValueError
+    exception if it is so low that it is actually past the center of the parent
+    body as this would be invalid. This is to help catch compound calculation
+    errors early.
     """
-    body_constants = get_celestial_body_constants(body_name)
+    body_constants = get_celestial_body_constants(parent_body_name)
+
+    if altitude_above_sea_level_m < - body_constants["equatorial_radius_m"]:
+        raise ValueError(f"The passed in altitude_above_sea_level_m of {altitude_above_sea_level_m} m would place it on the other side of the center of {parent_body_name}, and is, therefore, considered invalid.")
 
     return altitude_above_sea_level_m + body_constants["equatorial_radius_m"]
 
@@ -229,3 +238,28 @@ def ksp_formatted_time(seconds: int | float) -> str:
     remaining_s = remaining_s - (minutes * SECONDS_PER_MINUTE)
 
     return f"{days}d, {hours}h, {minutes}m, {remaining_s}s"
+
+
+def subtract_radius(parent_body_name: str, object_radius_from_parent_center_m: float) -> float:
+    """
+    Given the name of a celestial body and the distance above the center of that
+    body return the same altitude expressed as the distance above "sea level" of
+    that body as it would appear on the maneuver and altitude displays. In other
+    words, with the radius of the body subtracted from it.
+
+    This utility assumes that the body name is valid and will throw
+    a ValueError exception if it is not (because the function it calls will throw
+    an exception).
+
+    Additionally, this function will throw a ValueError exception if the passed in
+    object_radius_from_parent_center_m is negative as this will result in an invalid
+    altitude.
+    """
+    body_constants = get_celestial_body_constants(parent_body_name)
+
+    if object_radius_from_parent_center_m < 0:
+        raise ValueError(f"The passed in object_radius_from_parent_center_m value of {object_radius_from_parent_center_m} m cannot be less than 0.")
+
+    altitude_above_sea_level_m = object_radius_from_parent_center_m - body_constants["equatorial_radius_m"]
+
+    return altitude_above_sea_level_m

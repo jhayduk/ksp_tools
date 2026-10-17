@@ -1,5 +1,5 @@
 import pytest
-from ksp_utils import add_radius, is_known_celestial_body, is_moon
+from ksp_utils import add_radius, is_known_celestial_body, is_moon, subtract_radius
 
 
 # =====================
@@ -7,16 +7,24 @@ from ksp_utils import add_radius, is_known_celestial_body, is_moon
 # =====================
 class TestAddRadius:
     # The function does not check sea level, but test anyway
+    def test_add_radius_below_sea_level(self):
+        assert add_radius("Kerbin", -100000) == pytest.approx(500000)
+
     def test_add_radius_at_sea_level(self):
         assert add_radius("Kerbin", 0) == pytest.approx(600000)
 
     def test_add_radius_above_sea_level(self):
-        assert add_radius("Kerbin", 140000) == pytest.approx(140000 + 600000)
+        assert add_radius("Kerbin", 100000) == pytest.approx(700000)
 
     # The function should raise a ValueError if name unknown
     def test_add_radius_unknown_body(self):
         with pytest.raises(ValueError):
-            add_radius("NotABody", 140000)
+            add_radius("NotABody", 100000)
+
+    # The function should raise a ValueError is lower then the center of the paranet body
+    def test_add_radius_nonsense_input(self):
+        with pytest.raises(ValueError):
+            subtract_radius("Kerbin", -700000)
 
 
 # ==================
@@ -64,3 +72,30 @@ class TestIsKnownCelestialBody:
     # The function should flag unknown names
     def test_unknown_body(self):
         assert is_known_celestial_body("NotABody") == False
+
+
+# ==========================
+# subtract_radius() tests
+# ==========================
+class TestSubtractRadius:
+    # The function does not check sea level, but test anyway
+    def test_subtract_radius_below_sea_level(self):
+        assert subtract_radius("Kerbin", 500000) == pytest.approx(-100000)
+
+    def test_subtract_radius_at_sea_level(self):
+        assert subtract_radius("Kerbin", 600000) == pytest.approx(0)
+
+    def test_subtract_radius_above_sea_level(self):
+        assert subtract_radius("Kerbin", 700000) == pytest.approx(100000)
+
+    # The function should raise a ValueError if name unknown
+    def test_subtract_radius_unknown_body(self):
+        with pytest.raises(ValueError):
+            subtract_radius("NotABody", 100000)
+
+    # The function should raise a ValueError is the result would be nonsensical
+    def test_subtract_radius_nonsense_result(self):
+        with pytest.raises(ValueError):
+            subtract_radius("Kerbin", -1)
+
+
