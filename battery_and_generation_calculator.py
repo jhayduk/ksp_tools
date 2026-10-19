@@ -17,13 +17,9 @@ from rich import print
 from solar_panel_efficiency_calculator import solar_panel_efficiency
 
 def main():
-    parent_body, parent_body_constants = get_parent_body_name_and_constants()
+    parent_body_name, parent_body_constants = get_parent_body_name_and_constants()
 
-    apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(
-        parent_body,
-        parent_body_constants["equatorial_radius_m"],
-        parent_body_constants["sphere_of_influence_radius_m"]
-    )
+    apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(parent_body_name)
 
     print()
     print("Continuous electrical consumption is usually used by probes, lights,")
@@ -73,7 +69,7 @@ def main():
     recharge_required_ecps = storage_required_ec / time_in_light_s
 
     panel_efficiency_factor = solar_panel_efficiency(
-        parent_body,
+        parent_body_name,
         parent_body_constants["apoapsis_from_parent_center_m"],
         parent_body_constants["equatorial_radius_m"],
         apoapsis_m

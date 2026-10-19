@@ -58,13 +58,9 @@ def calculate_lighttime_s(
     return orbital_period_s - time_in_dark_s
 
 def main():
-    parent_body, parent_body_constants = get_parent_body_name_and_constants()
+    parent_body_name, parent_body_constants = get_parent_body_name_and_constants()
 
-    apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(
-        parent_body,
-        parent_body_constants["equatorial_radius_m"],
-        parent_body_constants["sphere_of_influence_radius_m"]
-    )
+    apoapsis_m, periapsis_m = get_apoapsis_and_periapsis(parent_body_name)
 
     orbital_period_s = calculate_period_s(
         apoapsis_m,

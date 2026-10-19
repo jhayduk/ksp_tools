@@ -31,9 +31,27 @@ def add_radius(parent_body_name: str, altitude_above_sea_level_m: float) -> floa
     body_constants = get_celestial_body_constants(parent_body_name)
 
     if altitude_above_sea_level_m < - body_constants["equatorial_radius_m"]:
-        raise ValueError(f"The passed in altitude_above_sea_level_m of {altitude_above_sea_level_m} m would place it on the other side of the center of {parent_body_name}, and is, therefore, considered invalid.")
+        raise ValueError(f"The passed in altitude_above_sea_level_m of {altitude_above_sea_level_m:,} m would place it on the other side of the center of {parent_body_name}, and is, therefore, considered invalid.")
 
     return altitude_above_sea_level_m + body_constants["equatorial_radius_m"]
+
+
+def get_altitude(parent_body_name: str) -> float:
+    """
+    Get, from the user, the altitude (above sea level) of the craft. While, typically,
+    the altitude should be within the sphere of influence (SOI) of the parent boidym, to
+    support interstellar calculculations, this is allowed. However, if the altitude
+    is outside of the SOI of the parent body, a warning message will be displayed, but
+    it will still be allowed.
+    """
+    body_constants = get_celestial_body_constants(parent_body_name)
+
+    altitude_m = float(input(f"Altitude of the craft (above {parent_body_name} sea level, in meters): "))
+
+    if altitude_m > body_constants["sphere_of_influence_radius_m"] - body_constants["equatorial_radius_m"]:
+        print(f"[yellow]Warning: The altitude of {altitude_m} m is outside of {parent_body_name}'s sphere of influence ({(body_constants['sphere_of_influence_radius_m'] - body_constants['equatorial_radius_m']):,} m).")
+
+    return altitude_m
 
 
 def get_apsis(
@@ -64,7 +82,7 @@ def get_apsis(
         from sea level of the parent body.
     """
     #
-    # The spehere of influence (SOI) of the parenet body is recorded from the center
+    # The spehere of influence (SOI) of the parent body is recorded from the center
     # of the body. Subtract the radius of the body, so the result can be used
     # for checking.
     #
@@ -75,7 +93,7 @@ def get_apsis(
         try:
             apsis_m = float(input(f"Planned {apsis.value} of craft (from sea level, in meters): "))
             if apsis_m > soi_without_radius_m:
-                print(f"[yellow]The {apsis.value} must be be within {parent_body_name}'s SOI ({soi_without_radius_m}m)")
+                print(f"[yellow]The {apsis.value} must be be within {parent_body_name}'s SOI ({soi_without_radius_m:,} m)")
             else:
                 got_valid_value = True
         except (ValueError, KeyError) as err:
@@ -83,10 +101,7 @@ def get_apsis(
 
     return apsis_m
 
-def get_apoapsis_and_periapsis(
-        parent_body_name: str,
-        parent_equatorial_radius_m: float,
-        parent_sphere_of_influence_radius_m: float) -> tuple[float, float]:
+def get_apoapsis_and_periapsis(parent_body_name: str) -> tuple[float, float]:
     """
     Gets, from the user, the apopasis and periapsis of a craft for which the
     calculations are being made. Both apsides are measured from sea level,
@@ -106,14 +121,16 @@ def get_apoapsis_and_periapsis(
         (apoapsis_m: float, periapsis_m: float) The apoapsis and periapsis, in meters,
           as measured from the sea level of the parent body.
     """
+    parent_body_constants = get_celestial_body_constants(parent_body_name)
+
     calculated_values: dict[Apsis, float] = {}
 
     for apsis in (Apsis.APOAPSIS, Apsis.PERIAPSIS):
         calculated_values[apsis] = get_apsis(
             apsis,
             parent_body_name,
-            parent_equatorial_radius_m,
-            parent_sphere_of_influence_radius_m
+            parent_body_constants["equatorial_radius_m"],
+            parent_body_constants["sphere_of_influence_radius_m"]
         )
 
     return calculated_values[Apsis.APOAPSIS], calculated_values[Apsis.PERIAPSIS]
@@ -265,7 +282,7 @@ def subtract_radius(parent_body_name: str, object_radius_from_parent_center_m: f
     body_constants = get_celestial_body_constants(parent_body_name)
 
     if object_radius_from_parent_center_m < 0:
-        raise ValueError(f"The passed in object_radius_from_parent_center_m value of {object_radius_from_parent_center_m} m cannot be less than 0.")
+        raise ValueError(f"The passed in object_radius_from_parent_center_m value of {object_radius_from_parent_center_m:,} m cannot be less than 0.")
 
     altitude_above_sea_level_m = object_radius_from_parent_center_m - body_constants["equatorial_radius_m"]
 

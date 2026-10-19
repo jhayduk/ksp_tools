@@ -1,5 +1,5 @@
 """
-solar_panel_efficiency_calculator.py
+    solar_panel_efficiency_calculator.py
 
     Calcluates an efficiency factor for solar panels to account for their
     distance from the Sun.
