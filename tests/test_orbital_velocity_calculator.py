@@ -2,9 +2,9 @@ from ksp_utils import get_celestial_body_constants
 import pytest
 from orbital_velocity_calculator import obital_velocity_mps
 
-# ==================
-# is_moon() tests
-# ==================
+# ===============================
+# orbital_velocity_mps() tests
+# ===============================
 class TestOrbitalVelocityCalculator:
     def test_orbital_velocity_mps_circular_orbit(self):
         calculated_orbital_velocity_mps = obital_velocity_mps(
